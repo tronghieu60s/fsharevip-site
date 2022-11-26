@@ -2,8 +2,11 @@ import React from "react";
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import md5 from "md5";
 import { User, Lock } from "react-feather";
+import { useRouter } from "next/router";
 
 export default function Header() {
+  const router = useRouter();
+
   return (
     <Navbar fluid={true} rounded={true} className="bg-transparent">
       <Navbar.Brand href="https://flowbite.com/">
@@ -36,8 +39,12 @@ export default function Header() {
                 tronghieu60s@gmail.com
               </span>
             </Dropdown.Header>
-            <Dropdown.Item>Nạp Tiền</Dropdown.Item>
-            <Dropdown.Item>Thống Kê</Dropdown.Item>
+            <Dropdown.Item onClick={() => router.push("/thong-ke")}>
+              Thống Kê
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => router.push("/mua-luot-tai")}>
+              Mua Lượt Tải
+            </Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item>Đăng Xuất</Dropdown.Item>
           </Dropdown>

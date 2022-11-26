@@ -3,7 +3,11 @@ import { Footer as DefaultFooter } from "flowbite-react";
 
 export default function Footer() {
   return (
-    <DefaultFooter container={true} className="bg-transparent shadow-none mt-5">
+    <DefaultFooter
+      id="footer"
+      container={true}
+      className="bg-transparent shadow-none mt-5"
+    >
       <DefaultFooter.Copyright href="#" by="Flowbite™" year={2022} />
       <DefaultFooter.LinkGroup>
         <DefaultFooter.Link href="#">Giới Thiệu</DefaultFooter.Link>
