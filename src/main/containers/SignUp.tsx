@@ -1,15 +1,50 @@
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { Button, Card, Label, Spinner, TextInput } from "flowbite-react";
 import Link from "next/link";
-import { ReactElement, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { Key, User } from "react-feather";
+import toast from "react-hot-toast";
+import { delayLoading } from "../../core/commonFuncs";
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false);
 
+  const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setLoading(true);
+    await delayLoading();
+
+    const { Email, Password, RePassword } = e.target as any;
+
+    if (Password.value !== RePassword.value) {
+      toast.error("Mật khẩu không khớp. Vui lòng thử lại.");
+      return setLoading(false);
+    }
+
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, Email.value, Password.value)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        console.log(errorCode);
+        if (errorCode === "auth/weak-password") {
+          toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
+        }
+        if (errorCode === "auth/email-already-in-use") {
+          toast.error("Email này đã được sử dụng.");
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="sm:w-full md:w-full lg:w-2/5 mx-auto mt-5">
       <Card>
-        <form>
+        <form onSubmit={onSubmit}>
           <h5 className="text-lg text-center font-bold capitalize">Đăng ký</h5>
           <div className="text-base mb-1.5 block">
             <Label htmlFor="email" value="Email" />
@@ -69,7 +104,7 @@ export default function SignUp() {
           </div>
           <p className="text-sm mt-2">
             Bạn đã có tài khoản? Hãy{" "}
-            <Link href="/dang-nhap" className="text-blue-600">
+            <Link href="/sign-in" className="text-blue-600">
               Đăng Nhập
             </Link>
             .
