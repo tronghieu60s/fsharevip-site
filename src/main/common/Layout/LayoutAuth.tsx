@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { useRecoilValue } from "recoil";
+import { isEmptyObject } from "../../../core/commonFuncs";
 import { authState } from "../../../service/auth/auth.reducer";
 import LayoutRoot from "./LayoutRoot";
 
@@ -13,10 +14,10 @@ export default function LayoutAuth(props: Props) {
   const auth = useRecoilValue(authState);
 
   useEffect(() => {
-    if (auth) {
+    if (auth && !isEmptyObject(auth)) {
       router.push("/");
     }
-  }, []);
+  }, [auth, router]);
 
   return <LayoutRoot>{props.children}</LayoutRoot>;
 }

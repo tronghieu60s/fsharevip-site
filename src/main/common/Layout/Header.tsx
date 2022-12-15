@@ -1,11 +1,16 @@
-import React from "react";
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import md5 from "md5";
-import { User, Lock } from "react-feather";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { Lock } from "react-feather";
+import { useRecoilState } from "recoil";
+import { isEmptyObject } from "../../../core/commonFuncs";
+import { authState } from "../../../service/auth/auth.reducer";
+import { SignInType } from "../../../service/auth/auth.types";
 
 export default function Header() {
   const router = useRouter();
+  const [auth, setAuth] = useRecoilState(authState);
 
   return (
     <Navbar fluid={true} rounded={true} className="bg-transparent">
@@ -21,7 +26,7 @@ export default function Header() {
         </span>
       </Navbar.Brand>
       <div className="flex md:order-2">
-        <div className="flex items-center text-sm">
+        <div className="flex items-center text-sm" hidden={isEmptyObject(auth)}>
           <Avatar
             img={`https://www.gravatar.com/avatar/${md5(
               "tronghieu60s@gmail.com"
@@ -46,15 +51,18 @@ export default function Header() {
               Mua Lượt Tải
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item>Đăng Xuất</Dropdown.Item>
+            <Dropdown.Item onClick={() => setAuth({} as SignInType)}>
+              Đăng Xuất
+            </Dropdown.Item>
           </Dropdown>
         </div>
-        {/* <button className="flex items-center bg-white hover:bg-gray-400 text-sm text-gray-800 p-2 rounded-md">
+        <Link
+          href="/sign-in"
+          className="flex items-center bg-white hover:bg-gray-400 text-sm text-gray-800 p-2 rounded-md"
+          hidden={!isEmptyObject(auth)}
+        >
           <Lock size={15} className="mr-1" /> Đăng Nhập
-        </button>
-        <button className="flex items-center bg-white hover:bg-gray-400 text-sm text-gray-800 p-2 rounded-md">
-          <User size={15} className="mr-1" /> Đăng Ký
-        </button> */}
+        </Link>
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
