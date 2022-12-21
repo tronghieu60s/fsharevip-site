@@ -1,49 +1,25 @@
-import { getAuth, signInWithEmailAndPassword, UserCredential } from "firebase/auth";
+import { captureException } from "@sentry/nextjs";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {
   Button,
   Card,
   Checkbox,
   Label,
   Spinner,
-  TextInput,
+  TextInput
 } from "flowbite-react";
 import Link from "next/link";
 import { FormEvent, useCallback, useState } from "react";
 import { Key, User } from "react-feather";
 import toast from "react-hot-toast";
+import { useRecoilRefresher_UNSTABLE, useRecoilValue, useSetRecoilState } from "recoil";
+import { MESSAGE_AUTH_ACCOUNT_INVALID, MESSAGE_AUTH_SIGN_IN_SUCCESS } from "../../const/message";
 import { delayLoading } from "../../core/commonFuncs";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { authState } from "../../service/auth/auth.reducer";
-
-const getMappingUser = (user: any) => {
-  const {
-    uid,
-    email,
-    photoURL,
-    phoneNumber,
-    isAnonymous,
-    emailVerified,
-    displayName,
-    accessToken,
-  } = user;
-
-  return {
-    user: {
-      uid,
-      email,
-      photoURL,
-      phoneNumber,
-      isAnonymous,
-      emailVerified,
-      displayName,
-    },
-    accessToken,
-  };
-};
+import { currentUserState } from "../../service/auth/auth.reducer";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
-  const setAuth = useSetRecoilState(authState);
+  const setCurrentUser = useSetRecoilState(currentUserState);
 
   const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,23 +31,22 @@ export default function SignIn() {
 
     const auth = getAuth();
     signInWithEmailAndPassword(auth, Email.value, Password.value)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        setAuth(getMappingUser(user));
+      .then(() => {
+        setCurrentUser(auth.currentUser);
+        toast.success(MESSAGE_AUTH_SIGN_IN_SUCCESS);
       })
       .catch((error) => {
-        console.log(error);
         const errorCode = error.code;
-        console.log(errorCode);
         if (
           errorCode === "auth/user-not-found" ||
           errorCode === "auth/wrong-password"
         ) {
-          toast.error("Tài khoản hoặc mật khẩu không đúng.");
+          return toast.error(MESSAGE_AUTH_ACCOUNT_INVALID);
         }
+        captureException(error);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [setCurrentUser]);
 
   return (
     <div className="sm:w-full md:w-full lg:w-2/5 mx-auto mt-5">

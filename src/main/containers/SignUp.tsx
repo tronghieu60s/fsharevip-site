@@ -1,12 +1,16 @@
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { captureException } from "@sentry/nextjs";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from "firebase/auth";
 import { Button, Card, Label, Spinner, TextInput } from "flowbite-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { FormEvent, useCallback, useState } from "react";
 import { Key, User } from "react-feather";
 import toast from "react-hot-toast";
+import { MESSAGE_AUTH_EMAIL_EXIST, MESSAGE_AUTH_PASSWORD_NOT_MATCH, MESSAGE_AUTH_PASSWORD_WEAK, MESSAGE_AUTH_SIGN_UP_SUCCESS } from "../../const/message";
 import { delayLoading } from "../../core/commonFuncs";
 
 export default function SignUp() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
@@ -18,7 +22,7 @@ export default function SignUp() {
     const { Email, Password, RePassword } = e.target as any;
 
     if (Password.value !== RePassword.value) {
-      toast.error("Mật khẩu không khớp. Vui lòng thử lại.");
+      toast.error(MESSAGE_AUTH_PASSWORD_NOT_MATCH);
       return setLoading(false);
     }
 
@@ -26,20 +30,24 @@ export default function SignUp() {
     createUserWithEmailAndPassword(auth, Email.value, Password.value)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user);
+        if (user) {
+          sendEmailVerification(auth.currentUser as any);
+          toast.success(MESSAGE_AUTH_SIGN_UP_SUCCESS);
+          router.push("/sign-in");
+        }
       })
       .catch((error) => {
         const errorCode = error.code;
-        console.log(errorCode);
         if (errorCode === "auth/weak-password") {
-          toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
+          return toast.error(MESSAGE_AUTH_PASSWORD_WEAK);
         }
         if (errorCode === "auth/email-already-in-use") {
-          toast.error("Email này đã được sử dụng.");
+          return toast.error(MESSAGE_AUTH_EMAIL_EXIST);
         }
+        captureException(error);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   return (
     <div className="sm:w-full md:w-full lg:w-2/5 mx-auto mt-5">
