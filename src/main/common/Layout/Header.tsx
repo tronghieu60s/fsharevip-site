@@ -1,38 +1,63 @@
-import { sendEmailVerification } from "firebase/auth";
+import { User } from "firebase/auth";
 import { Alert, Avatar, Dropdown, Navbar } from "flowbite-react";
 import md5 from "md5";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Lock } from "react-feather";
 import toast from "react-hot-toast";
 import NoSSR from "react-no-ssr";
-import { useRecoilValue } from "recoil";
-import { MESSAGE_AUTH_EMAIL_CONFIRMATION_SENT } from "../../../const/message";
-import { currentUserState } from "../../../service/auth/auth.reducer";
+import {
+  MESSAGE_AUTH_EMAIL_CONFIRMATION_SENT,
+  MESSAGE_AUTH_SIGN_OUT_SUCCESS,
+} from "../../../const/message";
+import {
+  firebaseCheckAuth,
+  firebaseSendEmailVerification,
+  firebaseSignOut,
+} from "../../../utils/firebase/firebaseAuth";
 
 export default function Header() {
   const router = useRouter();
-  const currentUser = useRecoilValue(currentUserState);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const emailVerified = currentUser?.emailVerified;
 
-  const onLogout = useCallback(() => {}, []);
+  useEffect(() => {
+    firebaseCheckAuth((user) => {
+      setCurrentUser(user);
+    });
+  }, []);
+
+  const onLogout = useCallback(() => {
+    firebaseSignOut().then(() => toast.success(MESSAGE_AUTH_SIGN_OUT_SUCCESS));
+  }, []);
 
   const onEmailVerification = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       e.preventDefault();
-      if (currentUser)
-        sendEmailVerification(currentUser).then(() => {
-          toast.success(MESSAGE_AUTH_EMAIL_CONFIRMATION_SENT);
-        });
+      firebaseSendEmailVerification().then(() => {
+        toast.success(MESSAGE_AUTH_EMAIL_CONFIRMATION_SENT);
+      });
     },
-    [currentUser]
+    []
   );
-  console.log(currentUser);
+
+  const avatar = useMemo(
+    () =>
+      currentUser?.photoURL ||
+      `https://www.gravatar.com/avatar/${md5(currentUser?.email || "")}`,
+    [currentUser?.email, currentUser?.photoURL]
+  );
+
+  const displayName = useMemo(
+    () => currentUser?.displayName || currentUser?.email?.split("@")?.[0],
+    [currentUser?.displayName, currentUser?.email]
+  );
+
   return (
     <React.Fragment>
       <NoSSR>
-        {!emailVerified && (
+        {currentUser && !emailVerified && (
           <Alert color="success" className="my-3">
             Bạn hãy kiểm tra email của mình để xác nhận tài khoản nhé! Nếu không
             thấy hãy nhấn vào{" "}
@@ -64,21 +89,19 @@ export default function Header() {
             {!!currentUser && (
               <div className="flex items-center text-sm">
                 <Avatar
-                  img={`https://www.gravatar.com/avatar/${md5(
-                    "tronghieu60s@gmail.com"
-                  )}`}
                   size="sm"
+                  img={avatar}
                   rounded={true}
                   className="mr-2"
                 />
-                <Dropdown label="Trọng Hiếu" size="sm" inline={true}>
+                <Dropdown size="sm" inline={true} label={displayName}>
                   <Dropdown.Header>
                     <span className="block text-sm">
-                      Trọng Hiếu (
+                      {displayName} (
                       <span className="text-red-600">3000 point</span>)
                     </span>
                     <span className="block text-sm font-medium truncate">
-                      tronghieu60s@gmail.com
+                      {currentUser.email}
                     </span>
                   </Dropdown.Header>
                   <Dropdown.Item onClick={() => router.push("/thong-ke")}>

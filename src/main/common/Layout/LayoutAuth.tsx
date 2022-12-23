@@ -1,9 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { useRecoilValue } from "recoil";
-import {
-  currentUserState
-} from "../../../service/auth/auth.reducer";
+import { firebaseCheckAuth } from "../../../utils/firebase/firebaseAuth";
 import LayoutRoot from "./LayoutRoot";
 
 type Props = {
@@ -12,11 +9,12 @@ type Props = {
 
 export default function LayoutAuth(props: Props) {
   const router = useRouter();
-  const currentUser = useRecoilValue(currentUserState);
 
   useEffect(() => {
-    if (!currentUser) router.push("/");
-  }, [currentUser, router]);
+    firebaseCheckAuth((user) => {
+      if (user) router.push("/");
+    });
+  }, [router]);
 
   return <LayoutRoot>{props.children}</LayoutRoot>;
 }

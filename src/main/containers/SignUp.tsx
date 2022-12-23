@@ -1,24 +1,23 @@
-import { captureException } from "@sentry/nextjs";
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from "firebase/auth";
 import { Button, Card, Label, Spinner, TextInput } from "flowbite-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { FormEvent, useCallback, useState } from "react";
 import { Key, User } from "react-feather";
 import toast from "react-hot-toast";
-import { MESSAGE_AUTH_EMAIL_EXIST, MESSAGE_AUTH_PASSWORD_NOT_MATCH, MESSAGE_AUTH_PASSWORD_WEAK, MESSAGE_AUTH_SIGN_UP_SUCCESS } from "../../const/message";
-import { delayLoading } from "../../core/commonFuncs";
+import {
+  MESSAGE_AUTH_EMAIL_EXIST,
+  MESSAGE_AUTH_PASSWORD_NOT_MATCH,
+  MESSAGE_AUTH_PASSWORD_WEAK,
+  MESSAGE_AUTH_SIGN_UP_SUCCESS
+} from "../../const/message";
+import { firebaseSignUpUser } from "../../utils/firebase/firebaseAuth";
 
 export default function SignUp() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setLoading(true);
-    await delayLoading();
-
     const { Email, Password, RePassword } = e.target as any;
 
     if (Password.value !== RePassword.value) {
@@ -26,16 +25,8 @@ export default function SignUp() {
       return setLoading(false);
     }
 
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, Email.value, Password.value)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        if (user) {
-          sendEmailVerification(auth.currentUser as any);
-          toast.success(MESSAGE_AUTH_SIGN_UP_SUCCESS);
-          router.push("/sign-in");
-        }
-      })
+    firebaseSignUpUser(Email.value, Password.value)
+      .then(() => toast.success(MESSAGE_AUTH_SIGN_UP_SUCCESS))
       .catch((error) => {
         const errorCode = error.code;
         if (errorCode === "auth/weak-password") {
@@ -44,10 +35,9 @@ export default function SignUp() {
         if (errorCode === "auth/email-already-in-use") {
           return toast.error(MESSAGE_AUTH_EMAIL_EXIST);
         }
-        captureException(error);
       })
       .finally(() => setLoading(false));
-  }, [router]);
+  }, []);
 
   return (
     <div className="sm:w-full md:w-full lg:w-2/5 mx-auto mt-5">

@@ -1,40 +1,33 @@
 import { captureException } from "@sentry/nextjs";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {
   Button,
   Card,
   Checkbox,
   Label,
   Spinner,
-  TextInput
+  TextInput,
 } from "flowbite-react";
 import Link from "next/link";
 import { FormEvent, useCallback, useState } from "react";
 import { Key, User } from "react-feather";
 import toast from "react-hot-toast";
-import { useRecoilRefresher_UNSTABLE, useRecoilValue, useSetRecoilState } from "recoil";
-import { MESSAGE_AUTH_ACCOUNT_INVALID, MESSAGE_AUTH_SIGN_IN_SUCCESS } from "../../const/message";
-import { delayLoading } from "../../core/commonFuncs";
-import { currentUserState } from "../../service/auth/auth.reducer";
+import {
+  MESSAGE_AUTH_ACCOUNT_INVALID,
+  MESSAGE_AUTH_SIGN_IN_SUCCESS,
+} from "../../const/message";
+import { firebaseSignInUser } from "../../utils/firebase/firebaseAuth";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
-  const setCurrentUser = useSetRecoilState(currentUserState);
 
   const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setLoading(true);
-    await delayLoading();
-
     const { Email, Password } = e.target as any;
 
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, Email.value, Password.value)
-      .then(() => {
-        setCurrentUser(auth.currentUser);
-        toast.success(MESSAGE_AUTH_SIGN_IN_SUCCESS);
-      })
+    firebaseSignInUser(Email.value, Password.value)
+      .then(() => toast.success(MESSAGE_AUTH_SIGN_IN_SUCCESS))
       .catch((error) => {
         const errorCode = error.code;
         if (
@@ -43,10 +36,9 @@ export default function SignIn() {
         ) {
           return toast.error(MESSAGE_AUTH_ACCOUNT_INVALID);
         }
-        captureException(error);
       })
       .finally(() => setLoading(false));
-  }, [setCurrentUser]);
+  }, []);
 
   return (
     <div className="sm:w-full md:w-full lg:w-2/5 mx-auto mt-5">

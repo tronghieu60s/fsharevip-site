@@ -6,6 +6,7 @@ export const MESSAGE_AUTH_EMAIL_CONFIRMATION_SENT =
 export const MESSAGE_AUTH_PASSWORD_WEAK = "Mật khẩu phải có ít nhất 6 ký tự.";
 export const MESSAGE_AUTH_PASSWORD_NOT_MATCH =
   "Mật khẩu không khớp. Vui lòng thử lại.";
-export const MESSAGE_AUTH_SIGN_IN_SUCCESS = "Đăng nhập thành công";
+export const MESSAGE_AUTH_SIGN_IN_SUCCESS = "Đăng nhập thành công!";
 export const MESSAGE_AUTH_SIGN_UP_SUCCESS =
   "Đăng ký thành công. Vui lòng đăng nhập.";
+export const MESSAGE_AUTH_SIGN_OUT_SUCCESS = "Đăng xuất thành công!";

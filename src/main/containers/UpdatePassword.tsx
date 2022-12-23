@@ -1,12 +1,17 @@
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { Key } from "react-feather";
+import { delayLoading } from "../../core/commonFuncs";
 
-export default function ChangePassword() {
+export default function UpdatePassword() {
   const [loading, setLoading] = useState(false);
 
+  const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  }, []);
+
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <h5 className="font-medium leading-tight text-xl">Đổi Mật Khẩu</h5>
       <div className="mt-2">
         <div className="text-base mb-1.5 block">
