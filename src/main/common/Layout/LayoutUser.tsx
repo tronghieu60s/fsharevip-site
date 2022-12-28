@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import auth, { firebaseCheckAuth } from "../../../utils/firebase/firebaseAuth";
-import Author from "./Author";
+import Author from "../Base/Author";
 import LayoutRoot from "./LayoutRoot";
 
 type Props = {
@@ -13,7 +13,7 @@ export default function LayoutUser(props: Props) {
 
   useEffect(() => {
     firebaseCheckAuth((user) => {
-      if (!user) router.push("/sign-in");
+      if (!user) router.push("/dang-nhap");
     });
   }, [router]);
 

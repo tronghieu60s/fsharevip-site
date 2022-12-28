@@ -6,7 +6,7 @@ export default function Footer() {
     <DefaultFooter
       id="footer"
       container={true}
-      className="bg-transparent shadow-none mt-5"
+      className="bg-transparent !shadow-none mt-5"
     >
       <DefaultFooter.Copyright href="#" by="Flowbite™" year={2022} />
       <DefaultFooter.LinkGroup>

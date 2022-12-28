@@ -38,18 +38,16 @@ export const firebaseCheckAuth = (
   completed?: CompleteFn
 ) => auth.onAuthStateChanged(nextOrObserver, error, completed);
 
-export const firebaseUpdateProfile = (
-  password: string,
-  { photoURL, displayName }: { photoURL?: string; displayName?: string }
-) => {
+export const firebaseUpdateProfile = ({
+  photoURL,
+  displayName,
+}: {
+  photoURL?: string;
+  displayName?: string;
+}) => {
   const user = auth.currentUser;
   if (user) {
-    return firebaseReauthenticateUser(password)
-      .then(() => firebase.updateProfile(user, { photoURL, displayName }))
-      .catch((error) => {
-        captureException(error);
-        return Promise.reject(error);
-      });
+    return firebase.updateProfile(user, { photoURL, displayName });
   }
   return Promise.reject();
 };

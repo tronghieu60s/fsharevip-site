@@ -23,14 +23,16 @@ export default function Header() {
   const emailVerified = currentUser?.emailVerified;
 
   useEffect(() => {
-    firebaseCheckAuth((user) => {
-      setCurrentUser(user);
-    });
+    firebaseCheckAuth((user) => setCurrentUser(user));
   }, []);
 
-  const onLogout = useCallback(() => {
-    firebaseSignOut().then(() => toast.success(MESSAGE_AUTH_SIGN_OUT_SUCCESS));
-  }, []);
+  const onLogout = useCallback(
+    () =>
+      firebaseSignOut().then(() =>
+        toast.success(MESSAGE_AUTH_SIGN_OUT_SUCCESS)
+      ),
+    []
+  );
 
   const onEmailVerification = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
@@ -97,7 +99,7 @@ export default function Header() {
                 <Dropdown size="sm" inline={true} label={displayName}>
                   <Dropdown.Header>
                     <span className="block text-sm">
-                      {displayName} (
+                      <Link href="ho-so" className="text-blue-700">{displayName}</Link> (
                       <span className="text-red-600">3000 point</span>)
                     </span>
                     <span className="block text-sm font-medium truncate">

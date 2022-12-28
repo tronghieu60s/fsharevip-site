@@ -45,7 +45,7 @@ export default function SignUp() {
         <form onSubmit={onSubmit}>
           <h5 className="text-lg text-center font-bold capitalize">Đăng ký</h5>
           <div className="text-base mb-1.5 block">
-            <Label htmlFor="email" value="Email" />
+            <Label htmlFor="Email" value="Email" />
           </div>
           <TextInput
             type="email"
@@ -65,7 +65,7 @@ export default function SignUp() {
             placeholder="Mật khẩu"
           />
           <div className="text-base mt-3 mb-1.5 block">
-            <Label htmlFor="password" value="Nhập lại mật khẩu" />
+            <Label htmlFor="RePassword" value="Nhập lại mật khẩu" />
           </div>
           <TextInput
             type="password"

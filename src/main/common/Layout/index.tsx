@@ -1,5 +1,5 @@
 import React from "react";
-import Author from "./Author";
+import Author from "../Base/Author";
 import LayoutRoot from "./LayoutRoot";
 
 type Props = {

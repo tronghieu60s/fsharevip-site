@@ -48,7 +48,7 @@ export default function SignIn() {
             Đăng nhập
           </h5>
           <div className="text-base mb-1.5 block">
-            <Label htmlFor="email" value="Email" />
+            <Label htmlFor="Email" value="Email" />
           </div>
           <TextInput
             type="email"
@@ -58,7 +58,7 @@ export default function SignIn() {
             placeholder="Email"
           />
           <div className="text-base mt-3 mb-1.5 block">
-            <Label htmlFor="password" value="Mật khẩu" />
+            <Label htmlFor="Password" value="Mật khẩu" />
           </div>
           <TextInput
             type="password"
@@ -67,10 +67,6 @@ export default function SignIn() {
             addon={<Key size={15} />}
             placeholder="Mật khẩu"
           />
-          <div className="flex items-center gap-2 mt-4">
-            <Checkbox id="remember" />
-            <Label htmlFor="remember">Duy trì đăng nhập</Label>
-          </div>
           <div className="w-full mt-4">
             <Button
               type="submit"

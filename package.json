@@ -20,7 +20,8 @@
     "react-dom": "18.2.0",
     "react-feather": "^2.0.10",
     "react-hot-toast": "^2.4.0",
-    "react-no-ssr": "^1.1.0"
+    "react-no-ssr": "^1.1.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/md5": "^2.3.2",
