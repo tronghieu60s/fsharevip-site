@@ -1,12 +1,16 @@
 import { User } from "firebase/auth";
 import {
+  child,
+  get,
+  increment,
+  limitToLast,
+  onValue,
+  orderByChild,
   push,
+  query,
   ref,
   set,
-  child,
   update,
-  onValue,
-  increment,
 } from "firebase/database";
 import { Button, ListGroup, Modal, Spinner, TextInput } from "flowbite-react";
 import Image from "next/image";
@@ -19,13 +23,16 @@ import React, {
   useState,
 } from "react";
 import { toast } from "react-hot-toast";
+import NoSSR from "react-no-ssr";
 import {
   MESSAGE_INTERNAL_SERVER_ERROR,
   MESSAGE_ORDER_PAYMENT_SUCCESS,
   MESSAGE_ORDER_PROCESS_SUCCESS,
+  MESSAGE_ORDER_REQUEST_MANY,
   MESSAGE_ORDER_REQUIRE_SUCCESS,
 } from "../../const/message";
 import { PAY_IN_METHOD, PAY_IN_PRICE } from "../../const/payIn";
+import { convertObjectToArray } from "../../core/commonFuncs";
 import { firebaseCheckAuth } from "../../utils/firebase/firebaseAuth";
 import { database } from "../../utils/firebase/firebaseConfig";
 
@@ -94,9 +101,13 @@ export default function PayIn() {
       return;
     }
 
-    const updates = {} as any;
-    updates[`/Users/${user}/Point`] = increment(priceSelected?.point || 0);
-    return update(ref(database), updates);
+    try {
+      const updates = {} as any;
+      updates[`/Users/${user}/Point`] = increment(priceSelected?.point || 0);
+      return update(ref(database), updates);
+    } catch (error) {
+      return toast.error(MESSAGE_INTERNAL_SERVER_ERROR);
+    }
   }, [orderKey, priceSelected?.point, user]);
 
   useEffect(() => {
@@ -126,7 +137,7 @@ export default function PayIn() {
   }, [onOrderSuccess, orderKey, router, user]);
 
   const onSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
+    async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       if (!user || isSubmitDisabled) {
@@ -136,7 +147,26 @@ export default function PayIn() {
       setLoading(true);
       setPaymentInformation(methodDetailSelected?.information || {});
 
-      const transferContent = crypto.randomUUID().replace(/-/g, "").toUpperCase().slice(0, 10);
+      const recentOrdersRef = query(
+        ref(database, `Orders/${user}`),
+        orderByChild("Date"),
+        limitToLast(20)
+      );
+      const recentOrders = convertObjectToArray(
+        await get(recentOrdersRef).then((snapshot) => snapshot?.val() || {})
+      );
+      const countPendingOrders =
+        recentOrders.filter((item) => item.Status === "Pending")?.length || 0;
+      if (countPendingOrders >= 3) {
+        setLoading(false);
+        return toast.error(MESSAGE_ORDER_REQUEST_MANY);
+      };
+
+      const transferContent = crypto
+        .randomUUID()
+        .replace(/-/g, "")
+        .toUpperCase()
+        .slice(0, 10);
       setTransferContent(transferContent);
 
       const orderData = {
@@ -200,6 +230,9 @@ export default function PayIn() {
           <div className="text-xs text-current mt-1">
             * Thời hạn sử dụng lượt tải là <strong>Vĩnh Viễn</strong>.
           </div>
+          <div className="text-xs text-current mt-1">
+            * Mua số lượng lớn hơn vui lòng liên hệ với chúng tôi qua email.
+          </div>
         </div>
         <div className="grid grid-cols-4 gap-4">
           <div className="col-span-1">
@@ -246,24 +279,28 @@ export default function PayIn() {
                   ))}
                 </ListGroup>
               </div>
-              <div className="col-span-2" hidden={!method}>
-                <ListGroup>
-                  {methodsDetail?.map((item) => (
-                    <ListGroup.Item
-                      key={item.key}
-                      active={methodDetail === item.key}
-                      onClick={() => setMethodDetail(item.key)}
-                    >
-                      <div className="flex items-center h-7">
-                        <div className="relative mr-2 w-7 h-7">
-                          <Image fill src={item.image} alt={item.name} />
-                        </div>
-                        {item.name}
-                      </div>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </div>
+              <NoSSR>
+                {method && (
+                  <div className="col-span-2">
+                    <ListGroup>
+                      {methodsDetail?.map((item) => (
+                        <ListGroup.Item
+                          key={item.key}
+                          active={methodDetail === item.key}
+                          onClick={() => setMethodDetail(item.key)}
+                        >
+                          <div className="flex items-center h-7">
+                            <div className="relative mr-2 w-7 h-7">
+                              <Image fill src={item.image} alt={item.name} />
+                            </div>
+                            {item.name}
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  </div>
+                )}
+              </NoSSR>
             </div>
           </div>
           <div className="col-span-2">

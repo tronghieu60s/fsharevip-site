@@ -102,8 +102,8 @@ export default function SignUp() {
           </div>
           <p className="text-sm mt-2">
             Bạn đã có tài khoản? Hãy{" "}
-            <Link href="/sign-in" className="text-blue-600">
-              Đăng Nhập
+            <Link href="/dang-nhap" className="text-blue-600">
+              đăng nhập
             </Link>
             .
           </p>

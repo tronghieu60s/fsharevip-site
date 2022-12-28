@@ -14,7 +14,7 @@ export const convertObjectToArray = (obj: any): any[] => {
   const arr: any = [];
   Object.keys(obj).forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      arr.push({ key, value: obj[key] });
+      arr.push({ key, ...obj[key] });
     }
   });
   return arr;

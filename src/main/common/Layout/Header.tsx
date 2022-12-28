@@ -119,7 +119,7 @@ export default function Header() {
             )}
           </NoSSR>
           <Link
-            href="/sign-in"
+            href="/dang-nhap"
             className="flex items-center bg-white hover:bg-gray-400 text-sm text-gray-800 p-2 rounded-md"
             hidden={!!currentUser}
           >
