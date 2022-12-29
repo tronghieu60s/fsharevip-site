@@ -99,8 +99,7 @@ export default function Header() {
                 <Dropdown size="sm" inline={true} label={displayName}>
                   <Dropdown.Header>
                     <span className="block text-sm">
-                      <Link href="ho-so" className="text-blue-700">{displayName}</Link> (
-                      <span className="text-red-600">3000 point</span>)
+                      <Link href="ho-so" className="text-blue-700">{displayName}</Link>
                     </span>
                     <span className="block text-sm font-medium truncate">
                       {currentUser.email}

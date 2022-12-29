@@ -44,7 +44,7 @@ export default function Author() {
         <Link href="/mua-luot-tai">Mua Lượt Tải Fshare</Link>
       </span>
       <span className="text-orange-500 text-sm font-bold mt-3">
-        <Link href="/su-dung-luot-tai">Sử Dụng Lượt Tải Fshare</Link>
+        <Link href="/su-dung-luot-tai">Sử Dụng Lượt Tải</Link>
       </span>
     </div>
   );

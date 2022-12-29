@@ -22,5 +22,6 @@ export const MESSAGE_ORDER_REQUIRE_SUCCESS =
 export const MESSAGE_ORDER_PAYMENT_SUCCESS = "Thanh toán thành công!";
 export const MESSAGE_ORDER_PROCESS_SUCCESS =
   "Đang thực hiện giao dịch vui lòng không đóng trình duyệt.";
+export const MESSAGE_ORDER_DELETE_SUCCESS = "Hủy giao dịch thành công!";
 export const MESSAGE_ORDER_REQUEST_MANY =
-  "Bạn đang có quá nhiều giao dịch. Vui lòng chờ thanh toán những giao dịch trước đó.";
+  "Bạn đang có quá nhiều giao dịch. Vui lòng thanh toán những giao dịch trước đó.";

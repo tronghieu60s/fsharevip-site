@@ -4,6 +4,7 @@ import {
   get,
   increment,
   limitToLast,
+  off,
   onValue,
   orderByChild,
   push,
@@ -94,6 +95,8 @@ export default function PayIn() {
       const data = snapshot.val();
       setCurrentPoint(data?.Point || 0);
     });
+
+    return () => off(userRef);
   }, [user]);
 
   const onOrderSuccess = useCallback(async () => {
@@ -115,7 +118,8 @@ export default function PayIn() {
       return;
     }
 
-    onValue(ref(database, `/Orders/${user}/${orderKey}`), async (snapshot) => {
+    const ordersRef = ref(database, `/Orders/${user}/${orderKey}`);
+    onValue(ordersRef, async (snapshot) => {
       const data = snapshot.val();
       if (data?.Status !== "Success") {
         return;
@@ -134,6 +138,8 @@ export default function PayIn() {
           }, 1000);
         });
     });
+
+    return () => off(ordersRef);
   }, [onOrderSuccess, orderKey, router, user]);
 
   const onSubmit = useCallback(
@@ -149,8 +155,7 @@ export default function PayIn() {
 
       const recentOrdersRef = query(
         ref(database, `Orders/${user}`),
-        orderByChild("Date"),
-        limitToLast(20)
+        limitToLast(10)
       );
       const recentOrders = convertObjectToArray(
         await get(recentOrdersRef).then((snapshot) => snapshot?.val() || {})
@@ -160,7 +165,7 @@ export default function PayIn() {
       if (countPendingOrders >= 3) {
         setLoading(false);
         return toast.error(MESSAGE_ORDER_REQUEST_MANY);
-      };
+      }
 
       const transferContent = crypto
         .randomUUID()
@@ -235,7 +240,7 @@ export default function PayIn() {
           </div>
         </div>
         <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-1">
+          <div className="col-span-4 md:col-span-4 lg:col-span-2 xl:col-span-1">
             <h5 className="font-medium leading-tight text-xl">Bảng Giá</h5>
             <ListGroup className="mt-2">
               {prices?.map((item) => (
@@ -255,10 +260,10 @@ export default function PayIn() {
               ))}
             </ListGroup>
           </div>
-          <div className="col-span-3">
+          <div className="col-span-4 md:col-span-4 lg:col-span-2 xl:col-span-3">
             <h5 className="font-medium leading-tight text-xl">Thanh Toán</h5>
             <div className="grid grid-cols-3 gap-4 mt-2">
-              <div className="col-span-1">
+              <div className="col-span-4 md:col-span-4 xl:col-span-1">
                 <ListGroup>
                   {methods.map((item) => (
                     <ListGroup.Item
@@ -281,7 +286,10 @@ export default function PayIn() {
               </div>
               <NoSSR>
                 {method && (
-                  <div className="col-span-2">
+                  <div className="col-span-4 md:col-span-4 xl:col-span-2">
+                    <h5 className="font-medium leading-tight text-xl mb-2 block lg:hidden">
+                      Phương Thức Thanh Toán
+                    </h5>
                     <ListGroup>
                       {methodsDetail?.map((item) => (
                         <ListGroup.Item
@@ -303,7 +311,7 @@ export default function PayIn() {
               </NoSSR>
             </div>
           </div>
-          <div className="col-span-2">
+          <div className="col-span-4 lg:col-span-2">
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Mã Giảm Giá (nếu có):
             </label>
@@ -369,14 +377,9 @@ export default function PayIn() {
             <div className="text-xs text-current mt-4">
               * {paymentInformation?.accountDescription}
               <br />* Chuyển số tiền{" "}
-              <strong>
-                {prices
-                  .find((item) => item.key === price)
-                  ?.price?.toLocaleString()}
-                đ
-              </strong>{" "}
-              vào tài khoản <strong>{paymentInformation?.accountNumber}</strong>{" "}
-              với nội dung <strong>{transferContent}</strong>.
+              <strong>{priceSelected?.price?.toLocaleString()}đ</strong> vào tài
+              khoản <strong>{paymentInformation?.accountNumber}</strong> với nội
+              dung <strong>{transferContent}</strong>.
             </div>
           </div>
         </Modal.Body>

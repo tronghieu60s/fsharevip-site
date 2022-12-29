@@ -20,10 +20,10 @@ export default function LayoutUser(props: Props) {
   return (
     <LayoutRoot>
       <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-1">
+        <div className="col-span-4 md:col-span-1">
           <Author />
         </div>
-        <div className="col-span-3">{props.children}</div>
+        <div className="col-span-4 md:col-span-3">{props.children}</div>
       </div>
     </LayoutRoot>
   );
